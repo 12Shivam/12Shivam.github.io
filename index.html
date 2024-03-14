@@ -8,29 +8,24 @@
         <title>Salesforce Messaging</title>
     </head>
     <body>
-        <script type="text/javascript">
-            function initEmbeddedMessaging() {
-                try {
-                    embeddedservice_bootstrap.settings.language = "en_US"; // For example, enter 'en' or 'en-US'
-
-                    embeddedservice_bootstrap.init(
-                        "00D0T0000000qdb",
-                        "BSD_Customer_Support",
-                        "https://downstream--osdbsd.sandbox.my.site.com/ESWBSDCustomerSupport1701878211794",
-                        {
-                            scrt2URL:
-                                "https://downstream--osdbsd.sandbox.my.salesforce-scrt.com",
-                        }
-                    );
-                } catch (err) {
-                    console.error("Error loading Embedded Messaging: ", err);
-                }
-            }
+        <script type='text/javascript'>
+        	function initEmbeddedMessaging() {
+        		try {
+        			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+        
+        			embeddedservice_bootstrap.init(
+        				'00DHz0000003iCP',
+        				'BSD_Customer_Support',
+        				'https://downstream--uat.sandbox.my.site.com/ESWBSDCustomerSupport1701878211794',
+        				{
+        					scrt2URL: 'https://downstream--uat.sandbox.my.salesforce-scrt.com'
+        				}
+        			);
+        		} catch (err) {
+        			console.error('Error loading Embedded Messaging: ', err);
+        		}
+        	};
         </script>
-        <script
-            type="text/javascript"
-            src="https://downstream--osdbsd.sandbox.my.site.com/ESWBSDCustomerSupport1701878211794/assets/js/bootstrap.min.js"
-            onload="initEmbeddedMessaging()"
-        ></script>
+        <script type='text/javascript' src='https://downstream--uat.sandbox.my.site.com/ESWBSDCustomerSupport1701878211794/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
     </body>
 </html>
