@@ -7,119 +7,106 @@
         />
         <title>Salesforce Messaging</title>
     </head>
-    <style>
-    .custom-chat-button {
-        position: fixed;
-        bottom: 0px;
-        right: 10px;
-
-        background-color: #2f4f6f;
-        color: #ffffff;
-        border: none;
-        border-radius: 5px 5px 0px 0px;
-
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
-
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-
-        transition: background-color 0.2s ease, transform 0.2s ease;
-        /* display: none; */
-    }
+    <style type='text/css'>
+  .embeddedServiceHelpButton .helpButton .uiButton {
+    background-color: #7e942d;
+    font-family: "Lucida Sans Unicode", sans-serif;
+  }
+  .embeddedServiceHelpButton .helpButton .uiButton:focus {
+    outline: 1px solid #7e942d;
+  }
 </style>
 
-<button class="custom-chat-button" onclick="launchChat()">💬 Chat With An Expert</button>
-
+<script type='text/javascript' src='https://service.force.com/embeddedservice/5.0/esw.min.js'></script>
 <script type='text/javascript'>
-    const chatButtonDefaultText = '💬 Chat With An Expert';
-    const chatButtonLoadingText = '⏳ Loading...';
-    const chatButtonUnavailableText = 'Agents Unavailable';
+    var fingroup = '010559';
+    var prechatBackgroundImgURL = 'https://masterbrand.file.force.com/servlet/servlet.ImageServer?';
+    var prechatBackgroundImgURLId = '0153w00000ETRdq';
+    var prechatBackgroundImgURLOId = '00D46000000ZAqb';
 
-    const fingroup = '010559';
+  var initESW = function(gslbBaseURL) {
+    embedded_svc.settings.displayHelpButton = true; //Or false
+    embedded_svc.settings.language = ''; //For example, enter 'en' or 'en-US'
 
-    function initEmbeddedMessaging() {
-        try {
-            embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
-            embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
+    embedded_svc.settings.defaultMinimizedText = 'Chat with an Expert'; //(Defaults to Chat with an Expert)
+    embedded_svc.settings.disabledMinimizedText = 'Loading...'; //(Defaults to Agent Offline)
+        embedded_svc.settings.enabledFeatures = ['LiveAgent'];
+        embedded_svc.settings.entryFeature = 'LiveAgent';
+      embedded_svc.settings.prechatBackgroundImgURL = prechatBackgroundImgURL + "id=" + prechatBackgroundImgURLId + "&oid=" + prechatBackgroundImgURLOId;
 
-            embeddedservice_bootstrap.init(
-                '00DfY000000UzIz',
-                'MiaBot_Handbook',
-                'https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768906116350',
-                {
-                  scrt2URL: 'https://masterbrand--uat.sandbox.my.salesforce-scrt.com'
-                }
-            );
-        } catch (err) {
-            console.error('Error loading Embedded Messaging: ', err);
-        }
-    };
+        embedded_svc.settings.extraPrechatFormDetails = [{
+            "label": "Chat Source",
+            "value": "handbook",
+            "transcriptFields": ["Chat_Source__c"],
+            "displayToAgent": true
+        }, {
+            "label": "Financial Group",
+            "value": fingroup,
+            "transcriptFields": ["Financial_Group__c"],
+            "displayToAgent": true
+        }, {
+            "label": "Store Number",
+            "transcriptFields": ["Store_Number__c"],
+            "displayToAgent": true
+        }, {
+            "label": "Primary Email",
+            "transcriptFields": ["Contact_Email__c"],
+            "displayToAgent": true
+        }, {
+            "label": "First Name",
+            "transcriptFields": ["Contact_FirstName__c"],
+            "displayToAgent": true
+        }];
 
-    // Messaging Event Hooks
-    window.addEventListener("onEmbeddedMessagingReady", () => {
-        setPreChatFields();
-        showCustomChatButton();
-    }); 
+        embedded_svc.settings.extraPrechatInfo = [{
+            "entityName": "Contact",
+            "entityFieldMaps": [{
+                "doCreate": true,
+                "doFind": true,
+                "fieldName": "External_Id__c",
+                "isExactMatch": true,
+                "label": "Primary Email"
+            }, {
+                "doCreate": true,
+                "doFind": false,
+                "fieldName": "FirstName",
+                "label": "First Name"
+            }, {
+                "doCreate": true,
+                "doFind": false,
+                "fieldName": "LastName",
+                "label": "Last Name"
+            }, {
+                "fieldName": "Email",
+                "label": "Primary Email"
+            }]
+        }];
 
-    window.addEventListener("onEmbeddedMessagingBusinessHoursEnded", () => {
-        // Update custom button to indicate agents unavailability
-        const chatButton = document.querySelector('.custom-chat-button');
-        if (chatButton) {
-            chatButton.textContent = chatButtonUnavailableText;
-            chatButton.style.display = 'block';
-        }
-    });
+    embedded_svc.init(
+      'https://masterbrand.my.salesforce.com',
+      'https://masterbrand.my.salesforce-sites.com/chat',
+      gslbBaseURL,
+      '00D46000000ZAqb',
+      'MiaBot_Embedded_Service_Handbook',
+      {
+        baseLiveAgentContentURL: 'https://c.la13-core1.sfdc-yfeipo.salesforceliveagent.com/content',
+        deploymentId: '5723w000000sXvI',
+        buttonId: '5733w000000wk4j',
+        baseLiveAgentURL: 'https://d.la13-core1.sfdc-yfeipo.salesforceliveagent.com/chat',
+        eswLiveAgentDevName: 'EmbeddedServiceLiveAgent_Parent04I8J0000008OItUAM_1823f01121d',        isOfflineSupportEnabled: false
+      }
+    );
+  };
 
-    window.addEventListener("onEmbeddedMessagingConversationStarted", () => {
-        hideCustomChatButton();
-    });
-
-    window.addEventListener("onEmbeddedMessagingWindowClosed", () => {
-        embeddedservice_bootstrap.utilAPI.hideChatButton();
-        showCustomChatButton();
-    })
-
-    window.addEventListener("onEmbeddedMessagingWindowMinimized", () => {
-        hideCustomChatButton();
-    });
-
-    // Helper methods
-    function setPreChatFields() {
-        // Set hidden pre-chat fields
-        embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
-            "Source": "handbook",
-            "Financial_Group": fingroup,
-        });
-    }
-
-    function showCustomChatButton() {
-        const chatButton = document.querySelector('.custom-chat-button');
-        if (chatButton) {
-            chatButton.textContent = chatButtonDefaultText;
-            chatButton.style.display = 'block';
-        }
-    }
-
-    function hideCustomChatButton() {
-        const chatButton = document.querySelector('.custom-chat-button');
-        if (chatButton) {
-            chatButton.style.display = 'none';
-        }
-
-    }
-
-    async function launchChat() {
-        const chatButton = document.querySelector('.custom-chat-button');
-        
-        // Change custom button text to loading
-        chatButton.textContent = chatButtonLoadingText;
-        // Launch chat window
-        await embeddedservice_bootstrap.utilAPI.launchChat();
-        // Hide custom chat button once chat is launched
-        chatButton.style.display = 'none';
-    }
+  if (!window.embedded_svc) {
+    var s = document.createElement('script');
+    s.setAttribute('src', 'https://masterbrand.my.salesforce.com/embeddedservice/5.0/esw.min.js');
+    s.onload = function() {
+      initESW(null);
+    };
+    document.body.appendChild(s);
+  } else {
+    initESW('https://service.force.com');
+  }
 </script>
-<script type='text/javascript' src='https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768906116350/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 </html>
