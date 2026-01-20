@@ -7,26 +7,119 @@
         />
         <title>Salesforce Messaging</title>
     </head>
-    <body>
-        <script type='text/javascript'>
-	function initEmbeddedMessaging() {
-		try {
-			embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+    <style>
+    .custom-chat-button {
+        position: fixed;
+        bottom: 0px;
+        right: 10px;
 
-			embeddedservice_bootstrap.init(
-				'00DfY000000UzIz',
-				'MiaBot_Handbook',
-				'https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768906116350',
-				{
-					scrt2URL: 'https://masterbrand--uat.sandbox.my.salesforce-scrt.com'
-				}
-			);
-		} catch (err) {
-			console.error('Error loading Embedded Messaging: ', err);
-		}
-	};
+        background-color: #2f4f6f;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px 5px 0px 0px;
+
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        display: none;
+    }
+</style>
+
+<button class="custom-chat-button" onclick="launchChat(e)">💬 Chat With An Expert</button>
+
+<script type='text/javascript'>
+    const chatButtonDefaultText = '💬 Chat With An Expert';
+    const chatButtonLoadingText = '⏳ Loading...';
+    const chatButtonUnavailableText = 'Agents Unavailable';
+
+    const fingroup = '010559';
+
+    function initEmbeddedMessaging() {
+        try {
+            embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+            embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
+
+            embeddedservice_bootstrap.init(
+                '00DfY000000UzIz',
+                'MiaBot_Handbook',
+                'https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768824643842',
+                {
+                    scrt2URL: 'https://masterbrand--uat.sandbox.my.salesforce-scrt.com'
+                }
+            );
+        } catch (err) {
+            console.error('Error loading Embedded Messaging: ', err);
+        }
+    };
+
+    // Messaging Event Hooks
+    window.addEventListener("onEmbeddedMessagingReady", () => {
+        setPreChatFields();
+        showCustomChatButton();
+    }); 
+
+    window.addEventListener("onEmbeddedMessagingBusinessHoursEnded", () => {
+        // Update custom button to indicate agents unavailability
+        const chatButton = document.querySelector('.custom-chat-button');
+        if (chatButton) {
+            chatButton.textContent = chatButtonUnavailableText;
+            chatButton.style.display = 'block';
+        }
+    });
+
+    window.addEventListener("onEmbeddedMessagingConversationStarted", () => {
+        hideCustomChatButton();
+    });
+
+    window.addEventListener("onEmbeddedMessagingWindowClosed", () => {
+        embeddedservice_bootstrap.utilAPI.hideChatButton();
+        showCustomChatButton();
+    })
+
+    window.addEventListener("onEmbeddedMessagingWindowMinimized", () => {
+        hideCustomChatButton();
+    });
+
+    // Helper methods
+    function setPreChatFields() {
+        // Set hidden pre-chat fields
+        embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+            "Source": "handbook",
+            "Financial_Group": fingroup,
+        });
+    }
+
+    function showCustomChatButton() {
+        const chatButton = document.querySelector('.custom-chat-button');
+        if (chatButton) {
+            chatButton.textContent = chatButtonDefaultText;
+            chatButton.style.display = 'block';
+        }
+    }
+
+    function hideCustomChatButton() {
+        const chatButton = document.querySelector('.custom-chat-button');
+        if (chatButton) {
+            chatButton.style.display = 'none';
+        }
+
+    }
+
+    async function launchChat(e) {
+        e.preventDefault();
+        const chatButton = document.querySelector('.custom-chat-button');
+        // Change custom button text to loading
+        chatButton.textContent = chatButtonLoadingText;
+        // Launch chat window
+        await embeddedservice_bootstrap.utilAPI.launchChat();
+        // Hide custom chat button once chat is launched
+        chatButton.style.display = 'none';
+    }
 </script>
-<script type='text/javascript' src='https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768906116350/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-
-    </body>
+<script type='text/javascript' src='https://masterbrand--uat.sandbox.my.site.com/ESWMiaBotHandbook1768824643842/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 </html>
