@@ -30,7 +30,7 @@
     }
 </style>
 
-<button class="custom-chat-button" onclick="launchChat(e)">💬 Chat With An Expert</button>
+<button class="custom-chat-button" onclick="launchChat()">💬 Chat With An Expert</button>
 
 <script type='text/javascript'>
     const chatButtonDefaultText = '💬 Chat With An Expert';
@@ -110,8 +110,7 @@
 
     }
 
-    async function launchChat(e) {
-        e.preventDefault();
+    async function launchChat() {
         const chatButton = document.querySelector('.custom-chat-button');
         // Change custom button text to loading
         chatButton.textContent = chatButtonLoadingText;
